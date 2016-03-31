@@ -11,9 +11,11 @@ def help
 	exit
 end
 
-# todo: and help and print it by default
+help if ARGV.empty?
 until ARGV.empty?
 	case ARGV.shift
+	when "-h", "--help"
+		help
 	when "-r", "--rule"
 		$rule = ARGV.shift.to_i
 		if $rule < 0 || $rule > 255
