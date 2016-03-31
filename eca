@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+$rule = 110
+
+$width = 20
+$char = "\u{FF03}"
+$sep = "\u{3000}"
+
+def help
+	puts "Usage: #{$0} [-r rule] [-w width]"
+	exit
+end
+
+# todo: and help and print it by default
+until ARGV.empty?
+	case ARGV.shift
+	when "-r", "--rule"
+		$rule = ARGV.shift.to_i
+		if $rule < 0 || $rule > 255
+			puts "The rule must be between 0 and 255"
+			exit
+		end 
+	when "-w", "--width"
+		$width = ARGV.shift.to_i
+		if $width % 2 == 0
+			puts "Width must be odd"
+			exit
+		end
+	end
+end
+
+HEIGHT = $width / 2 + 1
+TABLE = [*0..7].map { |n| sprintf("%03b", n).chars.map(&:to_i) }.zip(sprintf("%08b", $rule).chars.map(&:to_i).reverse).to_h
+
+def print_row(row)
+	puts "\e[1m" + row[$width - 1, $width].map { |n| n == 0 ? $sep : $char }.join("") + "\e[0m"
+end
+
+extra_width = $width * 3 - 2
+
+current_row = [0] * (extra_width / 2) + [1] + [0] * (extra_width / 2)
+print_row(current_row)
+
+(HEIGHT - 1).times do |x|
+	current_row = [*0...extra_width].map do |y|
+		first = (y == 0 ? 0 : current_row[y - 1])
+		last = (y + 1 == extra_width ? 0 : current_row[y + 1])
+		prev_values = [first, current_row[y], last]
+		TABLE[prev_values]
+	end
+	print_row(current_row)
+end
+
