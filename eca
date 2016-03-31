@@ -6,14 +6,23 @@ $width = 20
 $char = "\u{FF03}"
 $sep = "\u{3000}"
 
+$plain = false
+$bail = false
+
 def help
-	puts "Usage: #{$0} [-r rule] [-w width]"
+	bold = "\e[4m"
+	not_bold = "\e[24m"
+	puts "Usage: #{$0} -r #{bold}rule#{not_bold} -w #{bold}width#{not_bold} [-p]"
+	puts "-r, --rule\tThe rule to use to generate the automata"
+	puts "-w, --width\tThe width of the output (much of the right side may be blank with certain rules)"
+	puts "-p, --plain\tDon't use ANSI escape codes in the output"
 	exit
 end
 
 help if ARGV.empty?
 until ARGV.empty?
-	case ARGV.shift
+	opt = ARGV.shift
+	case opt
 	when "-h", "--help"
 		help
 	when "-r", "--rule"
@@ -28,14 +37,21 @@ until ARGV.empty?
 			puts "Width must be odd"
 			exit
 		end
+	when "-p", "--plain"
+		$plain = true
+	else
+		puts "Unrecognized option: #{opt}"
+		$bail = true
 	end
 end
+
+exit if $bail
 
 HEIGHT = $width / 2 + 1
 TABLE = [*0..7].map { |n| sprintf("%03b", n).chars.map(&:to_i) }.zip(sprintf("%08b", $rule).chars.map(&:to_i).reverse).to_h
 
 def print_row(row)
-	puts "\e[1m" + row[$width - 1, $width].map { |n| n == 0 ? $sep : $char }.join("") + "\e[0m"
+	puts ($plain ? "" : "\e[1m") + row[$width - 1, $width].map { |n| n == 0 ? $sep : $char }.join("") + ($plain ? "" : "\e[0m")
 end
 
 extra_width = $width * 3 - 2

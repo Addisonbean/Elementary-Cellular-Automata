@@ -49,3 +49,8 @@ $ eca -w 35 -r 110
 　＃＃＃＃＃＃＃＃　＃＃　　　＃＃＃　　　　　　　　　　　　　　　　　
 ＃＃　　　　　　＃＃＃＃　　＃＃　＃　　　　　　　　　　　　　　　　　
 ```
+
+Todo:
+* add a man file
+* add a height option
+
